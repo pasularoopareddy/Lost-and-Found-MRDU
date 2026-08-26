@@ -91,6 +91,8 @@ function App() {
   const [forgotPassword, setForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetOtpSent, setResetOtpSent] = useState(false);
+  const [registrationEmail, setRegistrationEmail] = useState("");
+  const [registrationOtpSent, setRegistrationOtpSent] = useState(false);
 
   const [selectedLocation, setSelectedLocation] = useState({
     lat: 17.5449,
@@ -213,6 +215,17 @@ function App() {
         user?: { id: string; name: string; email: string; studentId: string; department: string; year: number };
       };
 
+      if (register) {
+        if (!response.ok) {
+          setMessage(data.message ?? "Could not create the account.");
+          return;
+        }
+        setRegistrationEmail(String(payload.email ?? ""));
+        setRegistrationOtpSent(true);
+        setMessage(data.message ?? "Verification code sent to your email.");
+        return;
+      }
+
       if (!response.ok || !data.token) {
         setMessage(data.message ?? "Login failed.");
         return;
@@ -243,6 +256,40 @@ function App() {
       setMessage(
         "Could not connect to the backend. Make sure your backend server is running."
       );
+    }
+  }
+
+  async function confirmRegistration(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    try {
+      const response = await fetch(`${API}/auth/verify-registration`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: registrationEmail, code: form.get("code") }),
+      });
+      const data = (await response.json()) as {
+        token?: string;
+        message?: string;
+        user?: { id: string; name: string; email: string; studentId: string; department: string; year: number };
+      };
+      if (!response.ok || !data.token || !data.user) {
+        setMessage(data.message ?? "Could not verify the code.");
+        return;
+      }
+      localStorage.setItem("campusfind-token", data.token);
+      localStorage.setItem("campusfind-user-id", data.user.id);
+      const { id: _id, ...savedProfile } = data.user;
+      localStorage.setItem("campusfind-profile", JSON.stringify(savedProfile));
+      setToken(data.token);
+      setUserId(data.user.id);
+      setProfile(savedProfile);
+      setRegistrationOtpSent(false);
+      setMessage("Account created successfully.");
+      setPage("home");
+    } catch (error) {
+      console.error(error);
+      setMessage("Could not connect to the backend.");
     }
   }
 
@@ -984,6 +1031,15 @@ function App() {
                   </>
                 ) : <>
 
+                {registrationOtpSent ? <>
+                  <div className="tabs"><button className="on" type="button">Verify email</button></div>
+                  <form className="auth" onSubmit={confirmRegistration}>
+                    <p className="field-help">Enter the 6-digit code sent to {registrationEmail}.</p>
+                    <label>Verification code<input name="code" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} required /></label>
+                    <button className="primary" type="submit">Verify and create account</button>
+                  </form>
+                  <button className="link" type="button" onClick={() => { setRegistrationOtpSent(false); setRegister(true); setMessage(""); }}>Back to registration</button>
+                </> : <>
                 <div className="tabs">
 
                   <button
@@ -1088,7 +1144,7 @@ function App() {
                   {!register && <button className="link" type="button" onClick={() => setForgotPassword(true)}>Forgot password?</button>}
 
                 </form>
-
+                </>}
                 </>}</>)}
           </section>
 
