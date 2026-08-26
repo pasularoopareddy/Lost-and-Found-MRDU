@@ -1,0 +1,433 @@
+CampusFind — Overall Project Flow & Features
+1. Project Overview
+
+CampusFind is a campus-focused Lost & Found web application designed to help students report, locate, and recover lost items within the university campus and its nearby surroundings.
+
+Instead of simply allowing users to post lost and found items, the system connects Lost, Found, and Last-Seen reports using location, time, and item information. It can notify users when another report may be related and allows them to communicate privately through the application.
+
+2. Main User Flow
+User Login
+    ↓
+Home Dashboard
+    ↓
+Report / Search an Item
+    ↓
+Lost / Found / Last Seen
+    ↓
+Enter Item Details
+    ↓
+Select Location
+ ┌───────────────┐
+ │               │
+Map Selection   Location Name
+ │               │
+ └───────┬───────┘
+         ↓
+Geographical Location Check
+         ↓
+ ┌────────┼───────────┐
+ ↓        ↓           ↓
+Campus   Near Campus  Outside
+ ↓        ↓           ↓
+Allow    Allow       Reject
+         ↓
+Location Details
+(Block / Building / Floor / Classroom etc.)
+         ↓
+Submit Report
+         ↓
+Matching System
+         ↓
+Possible Related Reports
+         ↓
+Notifications
+         ↓
+Chat Request
+         ↓
+Private Chat
+         ↓
+Item Recovered
+3. User Authentication
+
+Users first create an account/login.
+
+Possible details:
+
+Name
+College email/Student ID
+Department
+Year
+Password
+Optional profile information
+
+The application can be restricted to university students/users.
+
+4. Reporting an Item
+
+Users can create three types of reports:
+
+🔴 Lost
+
+"I lost this item."
+
+🟢 Found
+
+"I found this item."
+
+👀 Last Seen
+
+"I saw an item that might belong to someone."
+
+This third option is important because someone may see an item without actually picking it up.
+
+5. Item Details
+
+When creating a report, users can enter:
+
+Item name
+Category
+Description
+Photo
+Date
+Approximate time
+Additional details
+Optional reward information
+
+Example:
+
+Black Wallet
+Black leather wallet with college ID
+Lost around 2:30 PM
+
+6. Map-Based Location Selection
+
+The location system is one of the main features.
+
+Users can select the location in two ways:
+
+Option 1 — Map
+
+A map similar to the experience of selecting a location in Uber.
+
+The user can move the map/pin and select the place where they lost, found, or saw the item.
+
+The application receives:
+
+Latitude
+Longitude
+Option 2 — Location Name
+
+Users can directly select a known campus location.
+
+For example:
+
+Block 6 → 2nd Floor → Classroom 204
+
+This is useful for users who know the exact campus location but don't want to use the map.
+
+7. Campus Map & Location Reference
+
+The website will include a campus overview/map with photos or visual references.
+
+This helps students identify locations they may not know.
+
+For example:
+
+Block 1
+Block 2
+Block 3
+...
+Block 13
+Library
+Canteen
+Auditorium
+Cricket Ground
+Football Ground
+Hostels
+Parking
+Main Gate
+Other important campus locations
+
+Specific locations can also contain:
+
+Building → Floor → Classroom/Area
+
+Example:
+
+Block 6 → 2nd Floor → Classroom 204
+
+8. Automatic Geographical Validation
+
+The user does not decide whether a location is inside or outside the allowed area.
+
+The application automatically determines it using predefined geographical boundaries.
+
+🟢 Campus Zone
+
+The actual university campus.
+
+🟡 Near-Campus Zone
+
+A limited surrounding area where students commonly travel immediately outside campus.
+
+🔴 Outside Zone
+
+Locations beyond the defined CampusFind coverage area.
+
+The system checks the coordinates selected by the user.
+
+Selected Location
+       ↓
+Check Coordinates
+       ↓
+Inside Campus?
+   ↓ YES       ↓ NO
+ Allow       Check Near Campus
+                ↓
+          Inside Near Campus?
+             ↓ YES      ↓ NO
+            Allow      Reject
+
+If the location is outside the supported area:
+
+This location is outside the CampusFind coverage area. Please select a location within the campus or nearby campus zone.
+
+This prevents people from using the application for completely unrelated locations.
+
+9. Location Hierarchy
+
+The system can store location information at multiple levels.
+
+Example:
+
+Zone: Campus
+
+
+Building: Block 6
+
+
+Floor: 2nd Floor
+
+
+Specific Area: Classroom 204
+
+
+Latitude: XX.XXXX
+Longitude: XX.XXXX
+
+For another report:
+
+Zone: Campus
+
+
+Location: Canteen
+
+
+Specific Area: Main Seating Area
+
+
+Latitude: XX.XXXX
+Longitude: XX.XXXX
+
+For outside the campus:
+
+Zone: Near Campus
+
+
+Location: Near Main Gate
+
+
+Latitude: XX.XXXX
+Longitude: XX.XXXX
+
+The map provides the geographical position, while the user can provide more detailed indoor information such as floor or classroom.
+
+10. Lost, Found & Last-Seen Matching
+
+This is one of the main features of CampusFind.
+
+The application compares reports using normal rule-based programming.
+
+Possible factors:
+
+Item category
+Item name/keywords
+Description
+Date
+Time
+Location
+Distance between locations
+Campus/near-campus zone
+
+The locations don't have to be exactly the same.
+
+For example:
+
+2:30 PM → Lost → Block 6
+3:00 PM → Last Seen → Library
+3:20 PM → Found → Canteen
+
+The system can recognize that these reports may be related because they happened close together in time and geographical location.
+
+No AI is required.
+
+11. Automatic Notifications
+
+Users don't have to constantly search the website.
+
+If the system finds a potentially related report, it can notify them.
+
+Example:
+
+🔔 Possible Match
+
+A black wallet was reported found near the Canteen.
+Your lost report was near Block 6 earlier today.
+
+View Report
+
+The notification should say "Possible Match", not guarantee that the item is theirs.
+
+The finder can also receive a notification:
+
+🔔 Possible Owner
+
+Someone reported losing a wallet earlier today near Block 6. This may be related to your found item.
+
+12. "I Saw This Item" Feature
+
+A user doesn't always need to create a full report.
+
+Suppose someone sees a lost item but doesn't pick it up.
+
+They can select:
+
+👀 I Saw This Item
+
+They can tell the owner:
+
+"I think I saw an item matching your description near the football ground around 4 PM."
+
+This creates another useful connection between users.
+
+13. Private Chat System
+
+Users should not have to publicly share their phone number or personal contact information.
+
+Instead:
+
+View Report
+    ↓
+Request Chat
+    ↓
+Other User Receives Notification
+    ↓
+Accept / Decline
+    ↓
+If Accepted
+    ↓
+Private Chat
+
+Example:
+
+Owner: Hi, I think this might be my wallet. Does it have an MRDU ID inside?
+
+Finder: Yes, it does.
+
+Owner: Okay, can we meet near the library?
+
+The conversation stays inside the application.
+
+14. Item Recovery
+
+Once the item is returned:
+
+Owner/Finder → Mark as Recovered
+
+The report changes:
+
+Status: RECOVERED ✅
+
+It is removed from active Lost/Found results but can remain in the user's history.
+
+15. Search & Filtering
+
+Users should be able to search reports using:
+
+Item name
+Category
+Lost/Found/Last Seen
+Location
+Date
+Status
+Campus/near-campus area
+
+Example:
+
+Search: ID Card
+
+Then:
+
+Lost — Block 6
+Found — Library
+Last Seen — Canteen
+
+16. User Dashboard
+
+The dashboard can show:
+
+My Lost Items       3
+My Found Items      2
+Last Seen Reports   1
+Possible Matches    2
+Chat Requests       1
+Recovered Items     4
+
+Users can manage their own reports and see notifications.
+
+17. Admin Panel
+
+An administrator can manage:
+
+Users
+Lost reports
+Found reports
+Last-Seen reports
+Reported/fake posts
+Inappropriate content
+Recovered items
+Chat/report abuse
+Campus locations
+
+The admin can remove suspicious or inappropriate posts.
+
+18. Core Features
+Must-have
+User authentication
+Lost item reports
+Found item reports
+Last-Seen reports
+Item photos
+Map-based location selection
+Location-name selection
+Campus/near-campus geographical validation
+Campus location hierarchy
+Search and filtering
+Possible-match detection
+Automatic notifications
+Chat requests
+Private chat
+Recovered status
+User dashboard
+Admin moderation
+Later/Advanced
+Real-time notifications
+Real-time chat
+Interactive campus map
+More detailed building maps
+Email notifications
+Report analytics
+QR-based item recovery/verification
+19. The Main Idea in One Sentence
+
+CampusFind is a campus-specific Lost & Found platform that uses map-based location, campus geofencing, time and item information to connect Lost, Found and Last-Seen reports, automatically notify potentially related users, and provide private communication until the item is recovered.

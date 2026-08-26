@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma-chat"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(cuid())
+  name       String
+  email      String   @unique
+  studentId  String   @unique
+  department String
+  year       Int
+  password   String
+  emailVerifiedAt DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  reports    Report[]
+  sentChatRequests     ChatRequest[] @relation("ChatRequester")
+  receivedChatRequests ChatRequest[] @relation("ChatOwner")
+  messages             ChatMessage[]
+  verificationCodes    VerificationCode[]
+}
+
+model VerificationCode {
+  id        String   @id @default(cuid())
+  email     String
+  purpose   VerificationPurpose
+  codeHash  String
+  payload   Json?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([email, purpose])
+}
+
+model Report {
+  id          String       @id @default(cuid())
+  itemName    String
+  category    String
+  description String
+  imageUrl    String?
+  reportType  ReportType
+  status      ReportStatus @default(ACTIVE)
+  date        DateTime
+  reward      String?
+  userId      String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  location    Location?
+  user        User         @relation(fields: [userId], references: [id])
+  chatRequests ChatRequest[]
+}
+
+model ChatRequest {
+  id          String            @id @default(cuid())
+  status      ChatRequestStatus @default(PENDING)
+  reportId    String
+  requesterId String
+  ownerId     String
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  report      Report            @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  requester   User              @relation("ChatRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  owner       User              @relation("ChatOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  messages    ChatMessage[]
+
+  @@unique([reportId, requesterId])
+}
+
+model ChatMessage {
+  id            String      @id @default(cuid())
+  content       String
+  chatRequestId String
+  senderId      String
+  createdAt     DateTime    @default(now())
+  chatRequest   ChatRequest @relation(fields: [chatRequestId], references: [id], onDelete: Cascade)
+  sender        User        @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model Location {
+  id        String  @id @default(cuid())
+  zone      String
+  building  String?
+  floor     String?
+  room      String?
+  latitude  Float
+  longitude Float
+  reportId  String  @unique
+  report    Report  @relation(fields: [reportId], references: [id])
+}
+
+enum ReportType {
+  LOST
+  FOUND
+  LAST_SEEN
+}
+
+enum ReportStatus {
+  ACTIVE
+  RECOVERED
+}
+
+enum ChatRequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum VerificationPurpose {
+  REGISTER
+  RESET_PASSWORD
+}
