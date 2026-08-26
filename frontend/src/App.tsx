@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
+import CampusMap from "./components/CampusMap";
 import CampusLayout from "./components/CampusLayout";
 import type { CampusPlace } from "./components/CampusLayout";
 import "./App.css";
@@ -869,19 +870,17 @@ function App() {
             <div className="location">
 
               <h3>
-                Select campus location
+                Select location on map
               </h3>
 
               <p>
-                Choose the campus area where the
+                Click on the map where the
                 item was lost or found.
               </p>
 
-              <CampusLayout
-                onSelect={(place) => {
-                  setBuilding(place.name);
-                  setSelectedLocation({ lat: place.latitude, lng: place.longitude });
-                  setMessage(`${place.name} selected for this report.`);
+              <CampusMap
+                onLocationSelect={(location) => {
+                  setSelectedLocation(location);
                 }}
               />
 
