@@ -18,6 +18,10 @@ export const register = async (req: Request, res: Response) => {
     if (![name, normalizedEmail, normalizedStudentId, department, year, password].every(Boolean)) return res.status(400).json({ success: false, message: "All fields are required" });
     const existing = await prisma.user.findFirst({ where: { OR: [{ email: normalizedEmail }, { studentId: normalizedStudentId }] } });
     if (existing) return res.status(409).json({ success: false, message: "Email or Student ID already exists" });
+    if (process.env.EMAIL_VERIFICATION_REQUIRED !== "true") {
+      const user = await prisma.user.create({ data: { name, email: normalizedEmail, studentId: normalizedStudentId, department, year: Number(year), password: await bcrypt.hash(password, 10) } });
+      return res.status(201).json({ success: true, message: "Account created successfully.", ...session(user) });
+    }
     await createCode(normalizedEmail, VerificationPurpose.REGISTER, { name, studentId: normalizedStudentId, department, year: Number(year), password: await bcrypt.hash(password, 10) });
     return res.json({ success: true, message: "Verification code sent to your email." });
   } catch (error) { console.error(error); return res.status(500).json({ success: false, message: "Something went wrong" }); }

@@ -215,11 +215,12 @@ function App() {
         user?: { id: string; name: string; email: string; studentId: string; department: string; year: number };
       };
 
-      if (register) {
-        if (!response.ok) {
+      if (register && !response.ok) {
           setMessage(data.message ?? "Could not create the account.");
           return;
-        }
+      }
+
+      if (register && !data.token) {
         setRegistrationEmail(String(payload.email ?? ""));
         setRegistrationOtpSent(true);
         setMessage(data.message ?? "Verification code sent to your email.");
